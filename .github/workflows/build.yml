@@ -1,0 +1,55 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install CMake
+        run: |
+          brew install cmake
+
+      - name: Configure CMake
+        run: |
+          cd Sources/cxxLibrary
+          cmake -S . -B build
+
+      - name: Build with CMake
+        run: |
+          cd Sources/cxxLibrary
+          cmake --build build
+
+      - name: Run tests with CMake
+        run: |
+          cd Sources/cxxLibrary/build
+          ctest
+
+      - name: Set up Swift
+        uses: fwal/setup-swift@v1
+        with:
+          swift-version: '5.9'
+
+      - name: Build Swift package
+        run: |
+          swift build
+
+      - name: Run Swift tests
+        run: |
+          swift test
